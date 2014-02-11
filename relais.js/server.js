@@ -1,8 +1,12 @@
 // npm install multipart path express ws
-// https://gist.github.com/gildean/5778473
+// https://gist.github.com/gildean/5778473                                                          great websocket example
 // https://github.com/gildean/raspi-ledblinker
-// http://stackoverflow.com/questions/18815734/how-to-call-java-program-from-nodejs
-// http://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
+// http://stackoverflow.com/questions/18815734/how-to-call-java-program-from-nodejs                 calling command line programs
+// http://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options  calling command line programs
+// http://stackoverflow.com/questions/5136353/node-js-https-secure-error#5140393                    https/wss
+// https://github.com/rikiji/walrusdict/blob/master/service/service.js                              riccardo example for c/c++ usage
+// http://stackoverflow.com/questions/10535007/how-to-integrate-websocket-with-emberjs              websockets with ember.js
+// http://stackoverflow.com/questions/14609477/ember-js-html-5-websockets
 
 'use strict';
 var express = require('express');
