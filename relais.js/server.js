@@ -7,13 +7,14 @@
 // https://github.com/rikiji/walrusdict/blob/master/service/service.js                              riccardo example for c/c++ usage
 // http://stackoverflow.com/questions/10535007/how-to-integrate-websocket-with-emberjs              websockets with ember.js
 // http://stackoverflow.com/questions/14609477/ember-js-html-5-websockets
+// https://github.com/joyent/node/wiki/modules                                                      a comprehensive list about node.js frameworks
 
 'use strict';
 var express = require('express');
 var util = require('util');
 var app = express();
 var WebSocketServer = require('ws').Server;
-var server = require('http').createServer(app).listen(8000);
+var server = require('http').createServer(app).listen(80);
  
 app.use(express.static(__dirname + '/public'));
  

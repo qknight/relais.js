@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <title>WebSocketTest</title>
+        <title>relais.js</title>
     </head>
     <body>
 <div id="main">
@@ -16,74 +16,80 @@
 <img id='foo7' width=100x value="6" src="1.gif" onclick="myFunction('foo7')">7 
 <img id='foo8' width=100x value="7" src="1.gif" onclick="myFunction('foo8')">8
 <br>
-<span id="status">WebSocket: disconnected</span>
+
+<div id="status1">WebSocket: unspecified status</div>
         </div>
 <script src="jquery-1.4.2.js"></script>
 <script src="jquery.hotkeys.js"></script>
-        <script>
-        $(document).ready(function(){
-            $(document).bind('keydown', '1', function(event){ myFunction('foo1') });
-            $(document).bind('keydown', '2', function(event){ myFunction('foo2') });
-            $(document).bind('keydown', '3', function(event){ myFunction('foo3') });
-            $(document).bind('keydown', '4', function(event){ myFunction('foo4') });
-            $(document).bind('keydown', '5', function(event){ myFunction('foo5') });
-            $(document).bind('keydown', '6', function(event){ myFunction('foo6') });
-            $(document).bind('keydown', '7', function(event){ myFunction('foo7') });
-            $(document).bind('keydown', '8', function(event){ myFunction('foo8') });
-        });
-        </script>
-        <script>
-                'use strict';
-                var status = document.getElementById('status');
-                            status.innerText = 'foo';
-                var foo1 = document.getElementById('foo1');
- 
-                function myFunction(arg) {
-                    var f = document.getElementById(arg);
-                    if (f.getAttribute('src') == "1.gif") {
-                      webSocketConnection.send(f.getAttribute('value'), '1');
-                      f.src = "2.gif"
-                    } else { 
-                      webSocketConnection.send(f.getAttribute('value'), '0');
-                      f.src = "1.gif"
-                    }
-                 };
- 
-                var webSocketConnection = {
-                    init: function () {
-                        var self = this;
-                        this.connection = new WebSocket(window.location.href.replace('http', 'ws'));
- 
-                        this.connection.onopen = function () {
-                            status.innerText = 'WebSocket: connected';
-                        };
- 
-                        this.connection.onerror = function (error) {
-                            console.log(error);
-                            self.connection.close();
-                        };
- 
-                        this.connection.onclose = function () {
-                            status.innerText = 'WebSocket: disconnected';
-                            setTimeout(self.init, 1000);
-                        };
- 
-                        this.connection.onmessage = function (m1,m2) {
-                            var p = D.createElement('p');
-                            p.appendChild(D.createTextNode(m1.data));
-                            messages.appendChild(p);
-                        };
-                    },
-                    send: function (d1, d2) {
-                        var arr = [d1,d2];
-                        var d = JSON.stringify(arr);
-                        this.connection.send(d);
-                    },
-                    close: function () {
-                        this.connection.close();
-                    }
-                };
-                webSocketConnection.init();
+<script>
+$(document).ready(function(){
+    $(document).bind('keydown', '1', function(event){ myFunction('foo1') });
+    $(document).bind('keydown', '2', function(event){ myFunction('foo2') });
+    $(document).bind('keydown', '3', function(event){ myFunction('foo3') });
+    $(document).bind('keydown', '4', function(event){ myFunction('foo4') });
+    $(document).bind('keydown', '5', function(event){ myFunction('foo5') });
+    $(document).bind('keydown', '6', function(event){ myFunction('foo6') });
+    $(document).bind('keydown', '7', function(event){ myFunction('foo7') });
+    $(document).bind('keydown', '8', function(event){ myFunction('foo8') });
+});
+</script>
+
+
+
+<script>
+'use strict';
+var status1 = document.getElementById('status1');
+var foo1 = document.getElementById('foo1');
+
+function myFunction(arg) {
+    if (webSocketConnection.connection.readyState == 3)
+       webSocketConnection.init();
+
+    var f = document.getElementById(arg);
+    if (f.getAttribute('src') == "1.gif") {
+      webSocketConnection.send(f.getAttribute('value'), '1');
+      f.src = "2.gif"
+    } else { 
+      webSocketConnection.send(f.getAttribute('value'), '0');
+      f.src = "1.gif"
+    }
+ };
+
+var webSocketConnection = {
+    init: function () {
+        var self = this;
+        this.connection = new WebSocket(window.location.href.replace('http', 'ws'));
+
+        this.connection.onopen = function () {
+            status1.innerText = 'WebSocket: connected';
+        };
+
+        this.connection.onerror = function (error) {
+            console.log(error);
+            self.connection.close();
+        };
+
+        this.connection.onclose = function () {
+            status1.innerText = 'WebSocket: disconnected';
+            setTimeout(self.init, 1000);
+        };
+
+        this.connection.onmessage = function (m1,m2) {
+            var p = D.createElement('p');
+            p.appendChild(D.createTextNode(m1.data));
+            messages.appendChild(p);
+        };
+    },
+    send: function (d1, d2) {
+        var arr = [d1,d2];
+        var d = JSON.stringify(arr);
+        this.connection.send(d);
+    },
+    close: function () {
+        this.connection.close();
+    }
+};
+webSocketConnection.init();
  
 </script>
 
