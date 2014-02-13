@@ -7,16 +7,16 @@
     </head>
     <body>
 <div id="main">
-    <img id='foo0' state="0" width=100x value="0" src="1.gif" onclick="myFunction('foo0')">1 
-    <img id='foo1' state="0" width=100x value="1" src="1.gif" onclick="myFunction('foo1')">2 <br>
-    <img id='foo2' state="0" width=100x value="2" src="1.gif" onclick="myFunction('foo2')">3
-    <img id='foo3' state="0" width=100x value="3" src="1.gif" onclick="myFunction('foo3')">4 <br>
-    <img id='foo4' state="0" width=100x value="4" src="1.gif" onclick="myFunction('foo4')">5 
-    <img id='foo5' state="0" width=100x value="5" src="1.gif" onclick="myFunction('foo5')">6 <br>
-    <img id='foo6' state="0" width=100x value="6" src="1.gif" onclick="myFunction('foo6')">7 
-    <img id='foo7' state="0" width=100x value="7" src="1.gif" onclick="myFunction('foo7')">8 <br>
+    <img id='foo0' state="0" width=100x value="0" src="2.gif" onclick="myFunction('foo0')">1 
+    <img id='foo1' state="0" width=100x value="1" src="2.gif" onclick="myFunction('foo1')">2 <br>
+    <img id='foo2' state="0" width=100x value="2" src="2.gif" onclick="myFunction('foo2')">3
+    <img id='foo3' state="0" width=100x value="3" src="2.gif" onclick="myFunction('foo3')">4 <br>
+    <img id='foo4' state="0" width=100x value="4" src="2.gif" onclick="myFunction('foo4')">5 
+    <img id='foo5' state="0" width=100x value="5" src="2.gif" onclick="myFunction('foo5')">6 <br>
+    <img id='foo6' state="0" width=100x value="6" src="2.gif" onclick="myFunction('foo6')">7 
+    <img id='foo7' state="0" width=100x value="7" src="2.gif" onclick="myFunction('foo7')">8 <br>
     <div id="status1">WebSocket: unspecified status</div>
-    <div id="messages">messages:</div>
+    <div id="messages"></div>
 </div>
 <script src="jquery-1.4.2.js"></script>
 <script src="jquery.hotkeys.js"></script>
@@ -73,21 +73,22 @@ var webSocketConnection = {
         this.connection.onmessage = function (d) {
             var newArr = JSON.parse(d.data);
             //FIXME need to check arguments so that no code is executed!
-            var d2 = newArr.pop();
-            var d1 = newArr.pop();
+            var state = newArr.pop();
+            var relais = newArr.pop();
 
-            var p = document.createElement('p');
-            p.appendChild(document.createTextNode("relais: " + d1  + ", state: " + d2 + " - from '" + d.origin + "' - " + new Date));
-            messages.appendChild(p);
-            var id = "foo" + d1;
+            //FIXME must show how set the thing now d.origin
+            //var p = document.createElement('p');
+            //p.appendChild(document.createTextNode("relais: " + relais  + ", state: " + state + " - from '" + d.origin + "' - " + new Date));
+            //messages.appendChild(p);
+
+            var id = "foo" + relais;
             var f = document.getElementById(id);
             if (f.getAttribute('state') == 1) {
-              f.setAttribute('state', d2);
               f.src = "2.gif";
             } else {
               f.src = "1.gif";
-              f.setAttribute('state', d2);
             }
+            f.setAttribute('state', state);
         };
     },
     send: function (d1, d2) {
