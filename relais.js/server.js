@@ -28,26 +28,16 @@ wss.on('connection', function (connection) {
     connection.id = cid;
 });
  
-// a function to set websocket connection eventlisteners and callbacks
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
-
 function setConnectionListeners(connection) {
     connection.on('message', function (d) {
         var newArr = JSON.parse(d);
         //FIXME need to check arguments so that no code is executed!
         var state = newArr.pop();
         var relais = newArr.pop();
-        console.log("received message: relais=" + relais + ", changing to new state=" + state);
         var spawn = require('child_process').spawn;
         var child = spawn('/bin/relais-tool', [relais, state]);
         connection.send(d);
+        console.log("received message: RELAIS=" + relais + ", changing to new STATE=" + state);
     })
     .on('error', function (error) {
         connection.close();
@@ -57,3 +47,7 @@ function setConnectionListeners(connection) {
     });
     return connection;
 }
+
+
+
+

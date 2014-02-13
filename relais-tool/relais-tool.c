@@ -12,8 +12,15 @@ int main(int argc, char* argv[]) {
 	IPConnection ipcon;
 	ipcon_create(&ipcon);
         char* UID;
+
+        if (argc == 1) {
+            printf("state of all relays\n");
+            exit(0);
+        }
+
         int r = atoi(argv[1])%2;
         int ret = 0;
+
 
         switch(atoi(argv[1])) {
           case 0:        
@@ -36,6 +43,7 @@ int main(int argc, char* argv[]) {
            exit(1);
         }
 
+        
 	// Create device object
 	DualRelay dr;
 	dual_relay_create(&dr, UID, &ipcon); 
@@ -65,7 +73,6 @@ int main(int argc, char* argv[]) {
           else 
 	    ret = dual_relay_set_state(&dr, ret_relay0, atoi(argv[2]));
         }
-
 	ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 
         //if (ret != 1)
