@@ -14,6 +14,7 @@ var express = require('express');
 var util = require('util');
 var app = express();
 var WebSocketServer = require('ws').Server;
+var connIds = [];
 var server = require('http').createServer(app).listen(80);
  
 app.use(express.static(__dirname + '/public'));
@@ -22,10 +23,34 @@ app.use(express.static(__dirname + '/public'));
 var wss = new WebSocketServer( { server: server } );
 wss.clientConnections = {};
  
+//wss.on('connection', function (connection) {
+//    var cid = connection.upgradeReq.headers['sec-websocket-key'];
+//    this.clientConnections[cid] = setConnectionListeners(connection);
+//    connection.id = cid;
+//});
+
+// websocket server eventlisteners and callbacks
 wss.on('connection', function (connection) {
+    console.log('wss.on.connection');
     var cid = connection.upgradeReq.headers['sec-websocket-key'];
     this.clientConnections[cid] = setConnectionListeners(connection);
     connection.id = cid;
+    connIds.push(cid);
+    // initiate the new client
+    // FIXME read real values from /bin/relais-tool
+    connection.send(JSON.stringify([1,0]));
+    connection.send(JSON.stringify([2,1]));
+})
+.on('sendAll', function (message) {
+    console.log("executing sendAll");
+    var self = this;
+    connIds.forEach(function (id) {
+        console.log("sendAll: " + id);
+        var conn = self.clientConnections[id];
+        //if (conn.connected) {
+            conn.send(message);
+        //}
+    });
 });
  
 function setConnectionListeners(connection) {
@@ -35,8 +60,11 @@ function setConnectionListeners(connection) {
         var state = newArr.pop();
         var relais = newArr.pop();
         var spawn = require('child_process').spawn;
+        //FIXME check arguments, here it means arbitratry code 
+        //FIXME check return value an act accordingly
         var child = spawn('/bin/relais-tool', [relais, state]);
-        connection.send(d);
+        wss.emit('sendAll', d);
+        //connection.send(d);
         console.log("received message: RELAIS=" + relais + ", changing to new STATE=" + state);
     })
     .on('error', function (error) {
@@ -44,6 +72,7 @@ function setConnectionListeners(connection) {
     })
     .on('close', function () {
         delete wss.clientConnections[connection.id];
+        connIds = Object.keys(wss.clientConnections);
     });
     return connection;
 }
