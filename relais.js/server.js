@@ -71,6 +71,7 @@ function setConnectionListeners(connection) {
         connection.close();
     })
     .on('close', function () {
+        console.log('removing: ' + connection.id)
         delete wss.clientConnections[connection.id];
         connIds = Object.keys(wss.clientConnections);
     });

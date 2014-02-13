@@ -7,14 +7,14 @@
     </head>
     <body>
 <div id="main">
-    <img id='foo0' state="0" width=100x value="0" src="2.gif" onclick="myFunction('foo0')">1 
-    <img id='foo1' state="0" width=100x value="1" src="2.gif" onclick="myFunction('foo1')">2 <br>
-    <img id='foo2' state="0" width=100x value="2" src="2.gif" onclick="myFunction('foo2')">3
-    <img id='foo3' state="0" width=100x value="3" src="2.gif" onclick="myFunction('foo3')">4 <br>
-    <img id='foo4' state="0" width=100x value="4" src="2.gif" onclick="myFunction('foo4')">5 
-    <img id='foo5' state="0" width=100x value="5" src="2.gif" onclick="myFunction('foo5')">6 <br>
-    <img id='foo6' state="0" width=100x value="6" src="2.gif" onclick="myFunction('foo6')">7 
-    <img id='foo7' state="0" width=100x value="7" src="2.gif" onclick="myFunction('foo7')">8 <br>
+    <img id='foo0' state="0" width=100x value="0" src="ktip_off.png" onclick="myFunction('foo0')">1 
+    <img id='foo1' state="0" width=100x value="1" src="ktip_off.png" onclick="myFunction('foo1')">2 <br>
+    <img id='foo2' state="0" width=100x value="2" src="ktip_off.png" onclick="myFunction('foo2')">3
+    <img id='foo3' state="0" width=100x value="3" src="ktip_off.png" onclick="myFunction('foo3')">4 <br>
+    <img id='foo4' state="0" width=100x value="4" src="ktip_off.png" onclick="myFunction('foo4')">5 
+    <img id='foo5' state="0" width=100x value="5" src="ktip_off.png" onclick="myFunction('foo5')">6 <br>
+    <img id='foo6' state="0" width=100x value="6" src="ktip_off.png" onclick="myFunction('foo6')">7 
+    <img id='foo7' state="0" width=100x value="7" src="ktip_off.png" onclick="myFunction('foo7')">8 <br>
     <div id="status1">WebSocket: unspecified status</div>
     <div id="messages"></div>
 </div>
@@ -83,9 +83,9 @@ var webSocketConnection = {
             var id = "foo" + relais;
             var f = document.getElementById(id);
             if (f.getAttribute('state') == 1) {
-              f.src = "2.gif";
+              f.src = "ktip_off.png";
             } else {
-              f.src = "1.gif";
+              f.src = "ktip.png";
             }
             f.setAttribute('state', state);
         };
