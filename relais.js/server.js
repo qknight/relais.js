@@ -29,14 +29,25 @@ wss.on('connection', function (connection) {
 });
  
 // a function to set websocket connection eventlisteners and callbacks
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
 function setConnectionListeners(connection) {
     connection.on('message', function (d) {
         var newArr = JSON.parse(d);
-        var d2 = newArr.pop();
-        var d1 = newArr.pop();
+        //FIXME need to check arguments so that no code is executed!
+        var state = newArr.pop();
+        var relais = newArr.pop();
+        console.log("received message: relais=" + relais + ", changing to new state=" + state);
         var spawn = require('child_process').spawn;
-        var child = spawn('/bin/relais-tool', [d1, d2]);
-        //connection.send(relais, state);
+        var child = spawn('/bin/relais-tool', [relais, state]);
+        connection.send(d);
     })
     .on('error', function (error) {
         connection.close();

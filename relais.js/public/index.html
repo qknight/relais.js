@@ -7,30 +7,29 @@
     </head>
     <body>
 <div id="main">
-<img id='foo1' width=100x value="0" src="1.gif" onclick="myFunction('foo1')">1 
-<img id='foo2' width=100x value="1" src="1.gif" onclick="myFunction('foo2')">2 <br>
-<img id='foo3' width=100x value="2" src="1.gif" onclick="myFunction('foo3')">3
-<img id='foo4' width=100x value="3" src="1.gif" onclick="myFunction('foo4')">4  <br>
-<img id='foo5' width=100x value="4" src="1.gif" onclick="myFunction('foo5')">5 
-<img id='foo6' width=100x value="5" src="1.gif" onclick="myFunction('foo6')">6 <br>
-<img id='foo7' width=100x value="6" src="1.gif" onclick="myFunction('foo7')">7 
-<img id='foo8' width=100x value="7" src="1.gif" onclick="myFunction('foo8')">8
-<br>
-
-<div id="status1">WebSocket: unspecified status</div>
-        </div>
+    <img id='foo0' state="0" width=100x value="0" src="1.gif" onclick="myFunction('foo0')">1 
+    <img id='foo1' state="0" width=100x value="1" src="1.gif" onclick="myFunction('foo1')">2 <br>
+    <img id='foo2' state="0" width=100x value="2" src="1.gif" onclick="myFunction('foo2')">3
+    <img id='foo3' state="0" width=100x value="3" src="1.gif" onclick="myFunction('foo3')">4 <br>
+    <img id='foo4' state="0" width=100x value="4" src="1.gif" onclick="myFunction('foo4')">5 
+    <img id='foo5' state="0" width=100x value="5" src="1.gif" onclick="myFunction('foo5')">6 <br>
+    <img id='foo6' state="0" width=100x value="6" src="1.gif" onclick="myFunction('foo6')">7 
+    <img id='foo7' state="0" width=100x value="7" src="1.gif" onclick="myFunction('foo7')">8 <br>
+    <div id="status1">WebSocket: unspecified status</div>
+    <div id="messages">messages:</div>
+</div>
 <script src="jquery-1.4.2.js"></script>
 <script src="jquery.hotkeys.js"></script>
 <script>
 $(document).ready(function(){
-    $(document).bind('keydown', '1', function(event){ myFunction('foo1') });
-    $(document).bind('keydown', '2', function(event){ myFunction('foo2') });
-    $(document).bind('keydown', '3', function(event){ myFunction('foo3') });
-    $(document).bind('keydown', '4', function(event){ myFunction('foo4') });
-    $(document).bind('keydown', '5', function(event){ myFunction('foo5') });
-    $(document).bind('keydown', '6', function(event){ myFunction('foo6') });
-    $(document).bind('keydown', '7', function(event){ myFunction('foo7') });
-    $(document).bind('keydown', '8', function(event){ myFunction('foo8') });
+    $(document).bind('keydown', '1', function(event){ myFunction('foo0') });
+    $(document).bind('keydown', '2', function(event){ myFunction('foo1') });
+    $(document).bind('keydown', '3', function(event){ myFunction('foo2') });
+    $(document).bind('keydown', '4', function(event){ myFunction('foo3') });
+    $(document).bind('keydown', '5', function(event){ myFunction('foo4') });
+    $(document).bind('keydown', '6', function(event){ myFunction('foo5') });
+    $(document).bind('keydown', '7', function(event){ myFunction('foo6') });
+    $(document).bind('keydown', '8', function(event){ myFunction('foo7') });
 });
 </script>
 
@@ -39,20 +38,18 @@ $(document).ready(function(){
 <script>
 'use strict';
 var status1 = document.getElementById('status1');
-var foo1 = document.getElementById('foo1');
+var messages = document.getElementById('messages');
 
 function myFunction(arg) {
     if (webSocketConnection.connection.readyState == 3)
        webSocketConnection.init();
 
     var f = document.getElementById(arg);
-    if (f.getAttribute('src') == "1.gif") {
+    f.src = "Wait.gif"
+    if (f.getAttribute('state') == 0)
       webSocketConnection.send(f.getAttribute('value'), '1');
-      f.src = "2.gif"
-    } else { 
+    if (f.getAttribute('state') == 1)
       webSocketConnection.send(f.getAttribute('value'), '0');
-      f.src = "1.gif"
-    }
  };
 
 var webSocketConnection = {
@@ -73,11 +70,24 @@ var webSocketConnection = {
             status1.innerText = 'WebSocket: disconnected';
             setTimeout(self.init, 1000);
         };
+        this.connection.onmessage = function (d) {
+            var newArr = JSON.parse(d.data);
+            //FIXME need to check arguments so that no code is executed!
+            var d2 = newArr.pop();
+            var d1 = newArr.pop();
 
-        this.connection.onmessage = function (m1,m2) {
-            var p = D.createElement('p');
-            p.appendChild(D.createTextNode(m1.data));
+            var p = document.createElement('p');
+            p.appendChild(document.createTextNode("relais: " + d1  + ", state: " + d2 + " - from '" + d.origin + "' - " + new Date));
             messages.appendChild(p);
+            var id = "foo" + d1;
+            var f = document.getElementById(id);
+            if (f.getAttribute('state') == 1) {
+              f.setAttribute('state', d2);
+              f.src = "2.gif";
+            } else {
+              f.src = "1.gif";
+              f.setAttribute('state', d2);
+            }
         };
     },
     send: function (d1, d2) {
