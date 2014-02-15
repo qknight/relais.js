@@ -31,7 +31,8 @@ var spawn = require('child_process').spawn;
 var child = spawn('/bin/relais-tool');
 child.stdout.on('data', function (data) {
   updateRelaisStates('' + data);
-  console.log('update form /bin/relais-tool: ' + data);
+  var messagestring = 'initial update of relaisStates using /bin/relais-tool: \n'.blue + data;
+  console.log(messagestring);
 });
 
 function updateRelaisStates(query) {
@@ -63,29 +64,36 @@ wss.on('connection', function (connection) {
     }
 })
 .on('sendAll', function (message) {
-    console.log("sending state-change to clients:".green);
-    var self = this;
-    connIds.forEach(function (id) {
-        var messagestring = "   sendAll: " + id;
-        console.log(messagestring.green);
-        var conn = self.clientConnections[id];
-        conn.send(message);
-    });
+    if (connIds.length > 0) {
+      console.log("sending state-change to clients:".green);
+      var self = this;
+      connIds.forEach(function (id) {
+          var messagestring = "   sendAll: " + id;
+          console.log(messagestring.green);
+          var conn = self.clientConnections[id];
+          conn.send(message);
+      });
+    }
 });
  
 function setConnectionListeners(connection) {
     connection.on('message', function (d) {
         var newArr = JSON.parse(d);
-        //FIXME need to check arguments so that no code is executed!
-        var state = newArr.pop();
-        var relais = newArr.pop();
-        var spawn = require('child_process').spawn;
-        //FIXME check return value an act accordingly
-        var child = spawn('/bin/relais-tool', [relais, state]);
-        var messagestring = "node.js server received message: RELAIS=" + relais + ", changing to new STATE=" + state;
-        relaisStates[relais] = state;
-        console.log(messagestring.magenta);
-        wss.emit('sendAll', d);
+        //need to make sure arguments to the relais-tool ran as root are indeed integers
+        var state = parseInt(newArr.pop());
+        var relais = parseInt(newArr.pop());
+        if (state == 0 || state == 1 || relais >= 0 || relais < 8) {
+          var spawn = require('child_process').spawn;
+          //FIXME here i assume relais-tool just *works* ;-)
+          var child = spawn('/bin/relais-tool', [relais, state]);
+          var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
+          relaisStates[relais] = state;
+          console.log(messagestring.magenta);
+          wss.emit('sendAll', d);
+        } else {
+          var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
+          console.log(messagestring.red);
+        }
     })
     .on('error', function (error) {
         connection.close();
