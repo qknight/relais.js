@@ -15,7 +15,7 @@
     <img id='foo5' state="0" width=100x value="5" src="ktip_off.png" onclick="myFunction('foo5')">6 <br>
     <img id='foo6' state="0" width=100x value="6" src="ktip_off.png" onclick="myFunction('foo6')">7 
     <img id='foo7' state="0" width=100x value="7" src="ktip_off.png" onclick="myFunction('foo7')">8 <br>
-    <div id="status1">WebSocket: unspecified status</div>
+    <div id="status1">WebSocket: disconnected</div>
     <div id="messages"></div>
 </div>
 <script src="jquery-1.4.2.js"></script>
@@ -72,7 +72,7 @@ var webSocketConnection = {
         };
         this.connection.onmessage = function (d) {
             var newArr = JSON.parse(d.data);
-            //FIXME need to check arguments so that no code is executed!
+            //FIXME security: need to check arguments so that no code is executed!
             var state = newArr.pop();
             var relais = newArr.pop();
 
@@ -82,10 +82,10 @@ var webSocketConnection = {
 
             var id = "foo" + relais;
             var f = document.getElementById(id);
-            if (f.getAttribute('state') == 1) {
-              f.src = "ktip_off.png";
-            } else {
+            if (state == 1) {
               f.src = "ktip.png";
+            } else {
+              f.src = "ktip_off.png";
             }
             f.setAttribute('state', state);
         };

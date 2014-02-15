@@ -1,4 +1,5 @@
-// npm install multipart path express ws
+// npm install express ws colors
+
 // https://gist.github.com/gildean/5778473                                                          great websocket example
 // https://github.com/gildean/raspi-ledblinker
 // http://stackoverflow.com/questions/18815734/how-to-call-java-program-from-nodejs                 calling command line programs
@@ -10,6 +11,7 @@
 // https://github.com/joyent/node/wiki/modules                                                      a comprehensive list about node.js frameworks
 
 'use strict';
+var colors = require('colors');
 var express = require('express');
 var util = require('util');
 var app = express();
@@ -22,56 +24,83 @@ app.use(express.static(__dirname + '/public'));
 // set up the websocket server
 var wss = new WebSocketServer( { server: server } );
 wss.clientConnections = {};
- 
-//wss.on('connection', function (connection) {
-//    var cid = connection.upgradeReq.headers['sec-websocket-key'];
-//    this.clientConnections[cid] = setConnectionListeners(connection);
-//    connection.id = cid;
-//});
 
+// local state which is updated after server.js is started
+var relaisStates = [ '0','0','0','0','0','0','0','0' ];
+var spawn = require('child_process').spawn;
+var child = spawn('/bin/relais-tool');
+child.stdout.on('data', function (data) {
+  updateRelaisStates('' + data);
+  var messagestring = 'initial update of relaisStates using /bin/relais-tool: \n'.blue + data;
+  console.log(messagestring);
+});
+
+function updateRelaisStates(query) {
+    //var query = '{"data": [ {"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"} ]}';
+    //console.log(query);
+    var obj = JSON.parse(query);
+    for ( var i = 0; i < obj.data.length; i++ )  {
+        var state = obj.data[i].value;
+        relaisStates[i] = state;
+        wss.emit('sendAll', JSON.stringify([i,state]));
+        //console.log(obj.data[i].value);
+    }
+}
+ 
 // websocket server eventlisteners and callbacks
 wss.on('connection', function (connection) {
-    console.log('wss.on.connection');
+    var messagestring = 'wss.on.connection - new client connected';
+    console.log(messagestring.yellow);
     var cid = connection.upgradeReq.headers['sec-websocket-key'];
     this.clientConnections[cid] = setConnectionListeners(connection);
     connection.id = cid;
     connIds.push(cid);
-    // initiate the new client
-    // FIXME read real values from /bin/relais-tool
-    connection.send(JSON.stringify([1,0]));
-    connection.send(JSON.stringify([2,1]));
+
+    // initialize the new client
+    for ( var i = 0; i < relaisStates.length; i++) {
+      var s = relaisStates[i];
+      //console.log("relaiseStates[" + i + "] = " + s);
+      connection.send(JSON.stringify([i,s]));
+    }
 })
 .on('sendAll', function (message) {
-    console.log("executing sendAll");
-    var self = this;
-    connIds.forEach(function (id) {
-        console.log("sendAll: " + id);
-        var conn = self.clientConnections[id];
-        //if (conn.connected) {
-            conn.send(message);
-        //}
-    });
+    if (connIds.length > 0) {
+      console.log("sending state-change to clients:".green);
+      var self = this;
+      connIds.forEach(function (id) {
+          var messagestring = "   sendAll: " + id;
+          console.log(messagestring.green);
+          var conn = self.clientConnections[id];
+          conn.send(message);
+      });
+    }
 });
  
 function setConnectionListeners(connection) {
     connection.on('message', function (d) {
         var newArr = JSON.parse(d);
-        //FIXME need to check arguments so that no code is executed!
-        var state = newArr.pop();
-        var relais = newArr.pop();
-        var spawn = require('child_process').spawn;
-        //FIXME check arguments, here it means arbitratry code 
-        //FIXME check return value an act accordingly
-        var child = spawn('/bin/relais-tool', [relais, state]);
-        wss.emit('sendAll', d);
-        //connection.send(d);
-        console.log("received message: RELAIS=" + relais + ", changing to new STATE=" + state);
+        //need to make sure arguments to the relais-tool ran as root are indeed integers
+        var state = parseInt(newArr.pop());
+        var relais = parseInt(newArr.pop());
+        if (state == 0 || state == 1 || relais >= 0 || relais < 8) {
+          var spawn = require('child_process').spawn;
+          //FIXME here i assume relais-tool just *works* ;-)
+          var child = spawn('/bin/relais-tool', [relais, state]);
+          var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
+          relaisStates[relais] = state;
+          console.log(messagestring.magenta);
+          wss.emit('sendAll', d);
+        } else {
+          var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
+          console.log(messagestring.red);
+        }
     })
     .on('error', function (error) {
         connection.close();
     })
     .on('close', function () {
-        console.log('removing: ' + connection.id)
+        var messagestring = 'closing: ' + connection.id;
+        console.log(messagestring.yellow);
         delete wss.clientConnections[connection.id];
         connIds = Object.keys(wss.clientConnections);
     });
