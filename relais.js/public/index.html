@@ -9,8 +9,8 @@
 #warning{
    position:absolute;
    top: 123px;
-   width:220px;
-   height:200px;
+   width:240px;
+   height:220px;
    margin:auto;
    background:white;
    opacity: .9;  
@@ -30,9 +30,14 @@
     <img id='foo5' state="0" width=100x value="5" src="ktip_off.png" onclick="myFunction('foo5')">6 <br>
     <img id='foo6' state="0" width=100x value="6" src="ktip_off.png" onclick="myFunction('foo6')">7 
     <img id='foo7' state="0" width=100x value="7" src="ktip_off.png" onclick="myFunction('foo7')">8 <br>
-    <div id="warning" onClick="webSocketConnection.init();">warning: you are disconnected right now. <br><br><b>click this field to reconnect</b> (or use browser reload)</div>
     <div id="status1">WebSocket: disconnected</div>
-    <div id="messages"></div>
+    <div id="messages">
+    <div id="warning" onClick="webSocketConnection.init();">
+      <center><b>you are disconnected</b>  
+      <br><img src="emblem-mounted.png"> <br>
+click this field to reconnect</b><br> (reload browser or press key 1..8)
+      </center>
+    </div>
 </div>
 <script src="jquery-1.4.2.js"></script>
 <script src="jquery.hotkeys.js"></script>
