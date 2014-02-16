@@ -32,15 +32,36 @@ child.stdout.on('data', function (data) {
 });
 
 function updateRelaisStates(query) {
-    //var query = '{"data": [ {"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"} ]}';
+    //replay from relais-tool should look like this:
+    // var query = '{"data": [ {"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"} ]}';
     //console.log(query);
     var obj = JSON.parse(query);
+
     for ( var i = 0; i < obj.data.length; i++ )  {
-        var state = (obj.data[i].value == "1") ? 1 : 0;
-        relaisStates[i] = state;
-        wss.emit('sendAll', JSON.stringify([i,state]));
-        //console.log(obj.data[i].value);
+        var s = (obj.data[i].value == "1") ? 1 : 0;
+        relaisStates[i] = s;
     }
+}
+
+function changeState(relais, state) {
+   // convert strings to int
+   var s = (state == "1") ? 1 : 0;
+   var r = parseInt(relais);
+   if (s == 0 || s == 1 || r >= 0 || r < 8) {
+        // updateRelaisStates(query) should not use /bin/relais-tool as the state was 'just' read from there....
+        if (relaisStates[r] !== s) {
+            relaisStates[r] = s;
+            var spawn = require('child_process').spawn;
+            //here i assume relais-tool just *works* ;-)
+            var child = spawn('/bin/relais-tool', [relais, state]);
+            var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
+            console.log(messagestring.magenta);
+        } 
+        wss.emit('sendAll', JSON.stringify([r,s]));
+   } else {
+     var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
+     console.log(messagestring.red);
+   }
 }
  
 // websocket server eventlisteners and callbacks
@@ -75,21 +96,10 @@ wss.on('connection', function (connection) {
 function setConnectionListeners(connection) {
     connection.on('message', function (d) {
         var newArr = JSON.parse(d);
-        //need to make sure arguments to the relais-tool ran as root are indeed integers
+        //SECURITY: need to make sure arguments to the relais-tool ran as root are indeed integers
         var state = parseInt(newArr.pop());
         var relais = parseInt(newArr.pop());
-        if (state == 0 || state == 1 || relais >= 0 || relais < 8) {
-          var spawn = require('child_process').spawn;
-          //here i assume relais-tool just *works* ;-)
-          var child = spawn('/bin/relais-tool', [relais, state]);
-          var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
-          relaisStates[relais] = state;
-          console.log(messagestring.magenta);
-          wss.emit('sendAll', d);
-        } else {
-          var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
-          console.log(messagestring.red);
-        }
+        changeState(relais, state);
     })
     .on('error', function (error) {
         connection.close();
@@ -127,16 +137,9 @@ app.put('/state/:id', function(req, res) {
     var request = req.body;
     var state = parseInt(request.value);
     //console.log("/state/:id, request to change to state: " + state + " on relais: " + (id+1) + "; request was:\n" + JSON.stringify(req.body));
-  
-    //FIXME does not trigger the relais yet, need to refactor the code first
+    changeState(id, state);
 
-    if (id >= 0 && id < 8) {
-          relaisStates[id] = state;
-          var d = JSON.stringify([id,state]);
-          wss.emit('sendAll', d);
-          res.send("state change requested for relais: " + (id+1) + " with new state=" + state);
-    } else
-      res.send("request out of bounds, needs to be [1,8] but was: " + id + "\n");
+    res.send("state change requested for relais: " + (id+1) + " with new state=" + state + " received");
 });
 
 
