@@ -72,7 +72,6 @@ var webSocketConnection = {
         };
         this.connection.onmessage = function (d) {
             var newArr = JSON.parse(d.data);
-            //FIXME security: need to check arguments so that no code is executed!
             var state = newArr.pop();
             var relais = newArr.pop();
 
