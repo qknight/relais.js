@@ -44,24 +44,31 @@ function updateRelaisStates(query) {
 }
 
 function changeState(relais, state) {
-   // convert strings to int
-   var s = (state == "1") ? 1 : 0;
-   var r = parseInt(relais);
-   if (s == 0 || s == 1 || r >= 0 || r < 8) {
-        // updateRelaisStates(query) should not use /bin/relais-tool as the state was 'just' read from there....
-        if (relaisStates[r] !== s) {
-            relaisStates[r] = s;
-            var spawn = require('child_process').spawn;
-            //here i assume relais-tool just *works* ;-)
-            var child = spawn('/bin/relais-tool', [relais, state]);
-            var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
-            console.log(messagestring.magenta);
-        } 
-        wss.emit('sendAll', JSON.stringify([r,s]));
-   } else {
-     var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
+   //SECURITY: need to make sure arguments to the relais-tool ran as root are indeed integers
+   if (isNaN(state) || isNaN(relais)) {
+     var messagestring = "error -> state: " + state + ", and relais: " + relais + " -> NaN detected! ignoring request";
      console.log(messagestring.red);
-   }
+   } else {
+     // convert strings to int
+     var s = (state == "0") ? 0 : 1;
+     var r = parseInt(relais);
+
+     if (s == 0 || s == 1 || r >= 0 || r < 8) {
+          // updateRelaisStates(query) should not use /bin/relais-tool as the state was 'just' read from there....
+          if (relaisStates[r] !== s) {
+              relaisStates[r] = s;
+              var spawn = require('child_process').spawn;
+              //here i assume relais-tool just *works* ;-)
+              var child = spawn('/bin/relais-tool', [relais, state]);
+              var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
+              console.log(messagestring.magenta);
+          } 
+          wss.emit('sendAll', JSON.stringify([r,s]));
+     } else {
+       var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
+       console.log(messagestring.red);
+     }
+  }
 }
  
 // websocket server eventlisteners and callbacks
@@ -96,7 +103,6 @@ wss.on('connection', function (connection) {
 function setConnectionListeners(connection) {
     connection.on('message', function (d) {
         var newArr = JSON.parse(d);
-        //SECURITY: need to make sure arguments to the relais-tool ran as root are indeed integers
         var state = parseInt(newArr.pop());
         var relais = parseInt(newArr.pop());
         changeState(relais, state);
