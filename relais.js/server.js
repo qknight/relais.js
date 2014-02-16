@@ -4,6 +4,7 @@
 // http://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options  calling command line programs
 // https://github.com/rikiji/walrusdict/blob/master/service/service.js                              riccardo example for c/c++ usage
 // https://github.com/joyent/node/wiki/modules                                                      a comprehensive list about node.js frameworks
+// https://github.com/visionmedia/node-basic-auth                                                   basic auth
 
 'use strict';
 var colors = require('colors');
@@ -81,7 +82,7 @@ wss.on('connection', function (connection) {
     connIds.push(cid);
 
     // initialize the new client
-    for ( var i = 0; i < relaisStates.length; i++) {
+    for (var i = 0; i < relaisStates.length; i++) {
       var s = relaisStates[i];
       //console.log("relaiseStates[" + i + "] = " + s);
       connection.send(JSON.stringify([i,s]));
@@ -124,8 +125,10 @@ function setConnectionListeners(connection) {
 // visit http://192.168.0.48/state
 //    or http://192.168.0.48/state/1
 // curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "1"}'  http://192.168.0.48/state/7
+// curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "$(touch /tmp/foo)"}'  http://192.168.0.48/state/7
 app.configure(function(){
-  app.use(express.bodyParser());
+  app.use(express.json());
+  app.use(express.urlencoded());
   app.use(app.router);
 });
 app.get('/state', function(req, res) {
