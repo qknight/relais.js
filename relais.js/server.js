@@ -107,6 +107,41 @@ function setConnectionListeners(connection) {
     return connection;
 }
 
+// http://coenraets.org/blog/2012/10/creating-a-rest-api-using-node-js-express-and-mongodb/
+// http://blog.modulus.io/nodejs-and-express-create-rest-api
+// visit http://192.168.0.48/state
+//    or http://192.168.0.48/state/1
+// curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "1"}'  http://192.168.0.48/state/7
+app.configure(function(){
+  app.use(express.bodyParser());
+  app.use(app.router);
+});
+app.get('/state', function(req, res) {
+    res.send(JSON.stringify(relaisStates));
+});
+app.get('/state/:id', function(req, res) {
+    var id = parseInt(req.params.id)-1;
+    if (id >= 0 && id < 8) 
+      res.send(JSON.stringify(relaisStates[id]));
+    else
+      res.send("request out of bounds, needs to be [1,8] but was: " + id);
+});
+app.put('/state/:id', function(req, res) {
+    var id = parseInt(req.params.id)-1;
+    var request = req.body;
+    var state = parseInt(request.value);
+    //console.log("/state/:id, request to change to state: " + state + " on relais: " + (id+1) + "; request was:\n" + JSON.stringify(req.body));
+  
+    //FIXME does not trigger the relais yet, need to refactor the code first
+
+    if (id >= 0 && id < 8) {
+          relaisStates[id] = state;
+          var d = JSON.stringify([id,state]);
+          wss.emit('sendAll', d);
+          res.send("state change requested for relais: " + (id+1) + " with new state=" + state);
+    } else
+      res.send("request out of bounds, needs to be [1,8] but was: " + id);
+});
 
 
 
