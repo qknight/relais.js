@@ -58,7 +58,7 @@ var webSocketConnection = {
         this.connection = new WebSocket(window.location.href.replace('http', 'ws'));
 
         this.connection.onopen = function () {
-            status1.innerText = 'WebSocket: connected';
+            status1.textContent = 'WebSocket: connected';
         };
 
         this.connection.onerror = function (error) {
@@ -67,7 +67,7 @@ var webSocketConnection = {
         };
 
         this.connection.onclose = function () {
-            status1.innerText = 'WebSocket: disconnected';
+            status1.textContent = 'WebSocket: disconnected';
             setTimeout(self.init, 1000);
         };
         this.connection.onmessage = function (d) {

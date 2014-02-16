@@ -84,7 +84,7 @@ function setConnectionListeners(connection) {
         var relais = parseInt(newArr.pop());
         if (state == 0 || state == 1 || relais >= 0 || relais < 8) {
           var spawn = require('child_process').spawn;
-          //FIXME here i assume relais-tool just *works* ;-)
+          //here i assume relais-tool just *works* ;-)
           var child = spawn('/bin/relais-tool', [relais, state]);
           var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
           relaisStates[relais] = state;
@@ -140,7 +140,7 @@ app.put('/state/:id', function(req, res) {
           wss.emit('sendAll', d);
           res.send("state change requested for relais: " + (id+1) + " with new state=" + state);
     } else
-      res.send("request out of bounds, needs to be [1,8] but was: " + id);
+      res.send("request out of bounds, needs to be [1,8] but was: " + id + "\n");
 });
 
 
