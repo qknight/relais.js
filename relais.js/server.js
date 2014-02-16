@@ -41,6 +41,7 @@ function updateRelaisStates(query) {
     for ( var i = 0; i < obj.data.length; i++ )  {
         var s = (obj.data[i].value == "1") ? 1 : 0;
         relaisStates[i] = s;
+        changeState(i, s);
     }
 }
 
@@ -120,6 +121,7 @@ function setConnectionListeners(connection) {
     return connection;
 }
 
+// code below might be stupid or not working 100% as expected but i don't care... for me it works
 // http://coenraets.org/blog/2012/10/creating-a-rest-api-using-node-js-express-and-mongodb/
 // http://blog.modulus.io/nodejs-and-express-create-rest-api
 // visit http://192.168.0.48/state
@@ -136,19 +138,30 @@ app.get('/state', function(req, res) {
 });
 app.get('/state/:id', function(req, res) {
     var id = parseInt(req.params.id)-1;
-    if (id >= 0 && id < 8) 
+    res.type('text/plain');
+    if (id >= 0 && id < 8) {
       res.send(JSON.stringify(relaisStates[id]));
-    else
-      res.send("request out of bounds, needs to be [1,8] but was: " + id);
+      res.statusCode = 200;
+    } else {
+      res.send("request out of bounds, needs to be [1,8] but was: " + (id+1));
+      res.statusCode = 404;
+    }
 });
 app.put('/state/:id', function(req, res) {
     var id = parseInt(req.params.id)-1;
     var request = req.body;
     var state = parseInt(request.value);
     //console.log("/state/:id, request to change to state: " + state + " on relais: " + (id+1) + "; request was:\n" + JSON.stringify(req.body));
-    changeState(id, state);
 
-    res.send("state change requested for relais: " + (id+1) + " with new state=" + state + " received");
+    res.type('text/plain');
+    if (id >= 0 && id < 8) {
+      res.statusCode = 200;
+      res.send("state change requested for relais: " + (id+1) + " with new state=" + state + " received");
+      changeState(id, state);
+    } else {
+      res.send("request out of bounds, needs to be [1,8] but was: " + (id+1));
+      res.statusCode = 404;
+    }
 });
 
 

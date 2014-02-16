@@ -5,6 +5,20 @@
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
         <title>relais.js</title>
         <link rel="icon" href="favicon.ico" type="image/x-icon">
+<style type="text/css">
+#warning{
+   position:absolute;
+   top: 123px;
+   width:220px;
+   height:200px;
+   margin:auto;
+   background:white;
+   opacity: .9;  
+   border: solid 2px black; 
+   display: none;
+   }
+</style>
+
     </head>
     <body>
 <div id="main">
@@ -16,6 +30,7 @@
     <img id='foo5' state="0" width=100x value="5" src="ktip_off.png" onclick="myFunction('foo5')">6 <br>
     <img id='foo6' state="0" width=100x value="6" src="ktip_off.png" onclick="myFunction('foo6')">7 
     <img id='foo7' state="0" width=100x value="7" src="ktip_off.png" onclick="myFunction('foo7')">8 <br>
+    <div id="warning" onClick="webSocketConnection.init();">warning: you are disconnected right now. <br><br><b>click this field to reconnect</b> (or use browser reload)</div>
     <div id="status1">WebSocket: disconnected</div>
     <div id="messages"></div>
 </div>
@@ -40,6 +55,7 @@ $(document).ready(function(){
 'use strict';
 var status1 = document.getElementById('status1');
 var messages = document.getElementById('messages');
+var warning = document.getElementById('warning');
 
 function myFunction(arg) {
     if (webSocketConnection.connection.readyState == 3)
@@ -60,6 +76,7 @@ var webSocketConnection = {
 
         this.connection.onopen = function () {
             status1.textContent = 'WebSocket: connected';
+            warning.style.display='none';
         };
 
         this.connection.onerror = function (error) {
@@ -69,6 +86,7 @@ var webSocketConnection = {
 
         this.connection.onclose = function () {
             status1.textContent = 'WebSocket: disconnected';
+            warning.style.display='block';
             setTimeout(self.init, 1000);
         };
         this.connection.onmessage = function (d) {
