@@ -40,11 +40,15 @@ child.stdout.on('data', function (data) {
 
 
 function toggle(key) {
-  var s=relaisStates[key];
-  if (s === 0)
-    changeState(key, 1);
-  if (s === 1)
-    changeState(key, 0);
+  var oldstate=relaisStates[key];
+  var newstate = 0;
+  if (oldstate === 0)
+    newstate = 1;
+
+  changeState(key, newstate);
+
+  //var messagestring = "server.js received keypad-tool message: RELAIS=" + key + ", changing to new STATE=" + newstate;
+  //console.log(messagestring.magenta);
 }
 
 // tinkerforge multi touch bricklet - keypad 3x4
@@ -61,13 +65,13 @@ child2.stdout.on('data', function (data) {
   var lines = ('' + data).split('\n');
   lines.forEach(function(line) {
     if (line !== "") {
-      console.log('JSON='.yellow + line);
+      //console.log('JSON='.yellow + line);
       try {
         var obj = JSON.parse(line);
         var key = parseInt(obj.data); 
         if (!isNaN(key)) {
           if (key >= 0 || key < 6)
-          console.log("success: parsing JSON: " + key + "\n");
+          //console.log("success: parsing JSON: " + key + "\n");
           var date = new Date();
           var delta = date.getTime() - relaisInputTimes[key];
           // debounce each key pad key with ~ 200-800 ms
@@ -77,7 +81,7 @@ child2.stdout.on('data', function (data) {
           relaisInputTimes[key] = date;
         }
       } catch(e){
-        console.log("error: parsing JSON\n".red);
+        console.log("error: processing input from keypad-tool\n".red);
         return;
       }
     }
