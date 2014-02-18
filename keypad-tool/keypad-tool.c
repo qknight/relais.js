@@ -24,7 +24,8 @@ void cb_touch_state(uint16_t touch_state, void *user_data) {
         int i = 0;
         for(; i < 12; i++) {
             if(touch_state & (1 << i)) {
-                printf("{ \"data\" : \"%d\" } \n", i);
+                fprintf(stdout, "{ \"data\" : \"%d\" } \n", i);
+                fflush(stdout);
             }
         }
         //printf("touched\n\n");
@@ -53,7 +54,7 @@ int main() {
                                   (void *)cb_touch_state,
                                   NULL);
 
-    printf("Press key to exit\n");
+    fprintf(stderr, "Press key to exit\n");
     getchar();
     ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 }

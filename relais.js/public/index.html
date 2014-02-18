@@ -50,8 +50,8 @@ $(document).ready(function(){
     $(document).bind('keydown', '4', function(event){ myFunction('foo3') });
     $(document).bind('keydown', '5', function(event){ myFunction('foo4') });
     $(document).bind('keydown', '6', function(event){ myFunction('foo5') });
-    $(document).bind('keydown', '7', function(event){ myFunction('foo6') });
-    $(document).bind('keydown', '8', function(event){ myFunction('foo7') });
+    //$(document).bind('keydown', '7', function(event){ myFunction('foo6') });
+    //$(document).bind('keydown', '8', function(event){ myFunction('foo7') });
 });
 </script>
 
@@ -117,6 +117,7 @@ var webSocketConnection = {
     send: function (d1, d2) {
         var arr = [d1,d2];
         var d = JSON.stringify(arr);
+        //var d = "adsofia dofiaf [ ] aksdf ja; {{ ;";
         this.connection.send(d);
     },
     close: function () {

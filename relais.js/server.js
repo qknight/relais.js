@@ -6,6 +6,10 @@
 // https://github.com/joyent/node/wiki/modules                                                      a comprehensive list about node.js frameworks
 // https://github.com/visionmedia/node-basic-auth                                                   basic auth
 
+// ljharb#node.js@irc.freenode.net
+//var converted = vectors.map(function (value) { var int = parseInt(value); if (String(int) !== String(value)) { throw new TypeError(); } return int; });
+
+
 'use strict';
 var colors = require('colors');
 var express = require('express');
@@ -23,7 +27,9 @@ var wss = new WebSocketServer( { server: server } );
 wss.clientConnections = {};
 
 // local state which is updated after server.js is started
+// the relais-tool is a part of this project - relais.js
 var relaisStates = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
+var relaisInputTimes = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 var spawn = require('child_process').spawn;
 var child = spawn('/bin/relais-tool');
 child.stdout.on('data', function (data) {
@@ -32,11 +38,53 @@ child.stdout.on('data', function (data) {
   console.log(messagestring);
 });
 
-// multi touch keypad 3x4
+
+function toggle(key) {
+  var s=relaisStates[key];
+  if (s === 0)
+    changeState(key, 1);
+  if (s === 1)
+    changeState(key, 0);
+}
+
+// tinkerforge multi touch bricklet - keypad 3x4
+// the keypad-tool is a part of this project - relais.js
 var spawn2 = require('child_process').spawn;
 var child2 = spawn2('/bin/keypad-tool');
 child2.stdout.on('data', function (data) {
-  console.log('data from 3x4 key pad: ' + data);
+  // if one clicks several buttons on the 3x4 keypad at once
+  // keypad-tool writes to stdout so fast, that sometimes node.js gets
+  // two JSON messages (or more) per stdin line.
+  // therefore we have to split all incoming lines and process
+  // each individually (or we end up with a JSON parser reporting
+  // about invalid JSON
+  var lines = ('' + data).split('\n');
+  lines.forEach(function(line) {
+    if (line !== "") {
+      console.log('JSON='.yellow + line);
+      try {
+        var obj = JSON.parse(line);
+        var key = parseInt(obj.data); 
+        if (!isNaN(key)) {
+          if (key >= 0 || key < 6)
+          console.log("success: parsing JSON: " + key + "\n");
+          var date = new Date();
+          var delta = date.getTime() - relaisInputTimes[key];
+          // debounce each key pad key with ~ 200-800 ms
+          if (delta > 200) {
+            toggle(key);
+          }
+          relaisInputTimes[key] = date;
+        }
+      } catch(e){
+        console.log("error: parsing JSON\n".red);
+        return;
+      }
+    }
+  });
+});
+child2.stderr.on('data', function (data) {
+  console.log('/bin/keypad stderr: ' + data);
 });
 
 
@@ -47,7 +95,7 @@ function updateRelaisStates(query) {
     var obj = JSON.parse(query);
 
     for ( var i = 0; i < obj.data.length; i++ )  {
-        var s = (obj.data[i].value == "1") ? 1 : 0;
+        var s = (obj.data[i].value === "1") ? 1 : 0;
         relaisStates[i] = s;
         changeState(i, s);
     }
@@ -147,11 +195,11 @@ app.get('/state', function(req, res) {
 app.get('/state/:id', function(req, res) {
     var id = parseInt(req.params.id)-1;
     res.type('text/plain');
-    if (id >= 0 && id < 8) {
+    if (id >= 0 && id < 6) {
       res.send(JSON.stringify(relaisStates[id]));
       res.statusCode = 200;
     } else {
-      res.send("request out of bounds, needs to be [1,8] but was: " + (id+1));
+      res.send("request out of bounds, needs to be [1,6] but was: " + (id+1));
       res.statusCode = 404;
     }
 });
@@ -162,12 +210,12 @@ app.put('/state/:id', function(req, res) {
     //console.log("/state/:id, request to change to state: " + state + " on relais: " + (id+1) + "; request was:\n" + JSON.stringify(req.body));
 
     res.type('text/plain');
-    if (id >= 0 && id < 8) {
+    if (id >= 0 && id < 6) {
       res.statusCode = 200;
       res.send("state change requested for relais: " + (id+1) + " with new state=" + state + " received");
       changeState(id, state);
     } else {
-      res.send("request out of bounds, needs to be [1,8] but was: " + (id+1));
+      res.send("request out of bounds, needs to be [1,6] but was: " + (id+1));
       res.statusCode = 404;
     }
 });
