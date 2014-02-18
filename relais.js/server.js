@@ -32,6 +32,14 @@ child.stdout.on('data', function (data) {
   console.log(messagestring);
 });
 
+// multi touch keypad 3x4
+var spawn2 = require('child_process').spawn;
+var child2 = spawn2('/bin/keypad-tool');
+child2.stdout.on('data', function (data) {
+  console.log('data from 3x4 key pad: ' + data);
+});
+
+
 function updateRelaisStates(query) {
     //replay from relais-tool should look like this:
     // var query = '{"data": [ {"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"},{"value" : "0"},{"value" : "1"} ]}';
