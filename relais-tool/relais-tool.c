@@ -84,9 +84,11 @@ int status_query(int r, int s) {
 
 int main(int argc, char* argv[]) {
         if (argc == 1) {
+            // ./relais-tool with no arguments to return JSON which contains
+            // the configuration for the selected relais
             fprintf(stderr, "state of all relays\n");
             int arr[8];
-            for (int i=0; i < 8; ++i) {
+            for (int i=0; i < 6; ++i) {
                int state = status_query(i,-1);
                if (state == -1) {
                  fprintf(stderr, "error reading all from all relays, maybe not connected via usb?\n");
@@ -95,7 +97,7 @@ int main(int argc, char* argv[]) {
                arr[i] = state;
             }
             printf("{ \"data\" : [ "); 
-            for (int i=0; i < 8; ++i) {
+            for (int i=0; i < 6; ++i) {
                if (i > 0)
                  printf(",");
                printf("{\"value\" : \"%i\"}", arr[i]);
@@ -103,9 +105,13 @@ int main(int argc, char* argv[]) {
             printf(" ] }\n");
             return 0;
         } else if (argc == 2 || argc == 3) {
+           // on argc == 2    query one relais, return the value
+           // not used for relais.js but handy to check the state on the shell for debugging
            int r = atoi(argv[1]);
 
            int s = -1;
+           // on argc == 3    set the relay r to state s
+           // used in relais.js
            if (argc == 3) 
              s = atoi(argv[2])%2;
 
