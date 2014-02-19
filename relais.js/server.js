@@ -1,3 +1,23 @@
+/*
+ *   server.js uses node.js bridge websocket based browsers to the relais state
+ *   of the tinkerforge dual relais bricklets.
+ *
+ *   Copyright (C) 2014 Joachim Schiele
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as
+ *   published by the Free Software Foundation, version 3 of the License.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 // https://gist.github.com/gildean/5778473                                                          great websocket example
 // https://github.com/gildean/raspi-ledblinker
 // http://stackoverflow.com/questions/18815734/how-to-call-java-program-from-nodejs                 calling command line programs

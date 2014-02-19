@@ -16,3 +16,10 @@ type 'crontabe -e' as root and add this line:
 
     @reboot /root/relais.js/starter.sh
 
+# copyright
+
+* all code is copyrighted AGPL v3, 
+  see https://www.gnu.org/licenses/agpl-3.0.html
+* some images in public were copied from the oxygen icon set, 
+  see http://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org.html 
+
