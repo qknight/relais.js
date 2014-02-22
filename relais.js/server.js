@@ -25,6 +25,7 @@
 // https://github.com/rikiji/walrusdict/blob/master/service/service.js                              riccardo example for c/c++ usage
 // https://github.com/joyent/node/wiki/modules                                                      a comprehensive list about node.js frameworks
 // https://github.com/visionmedia/node-basic-auth                                                   basic auth
+// http://stackoverflow.com/a/12148212/1630083
 
 // ljharb#node.js@irc.freenode.net
 //var converted = vectors.map(function (value) { var int = parseInt(value); if (String(int) !== String(value)) { throw new TypeError(); } return int; });
@@ -39,6 +40,11 @@ var WebSocketServer = require('ws').Server;
 var connIds = [];
 
 var server = require('http').createServer(app).listen(80);
+
+//User validation
+var auth = express.basicAuth(function(user, pass) {     
+   return (user == "super" && pass == "secret");
+},'Super duper secret area');
  
 app.use(express.static(__dirname + '/public'));
  
@@ -213,10 +219,10 @@ app.configure(function(){
   app.use(express.urlencoded());
   app.use(app.router);
 });
-app.get('/state', function(req, res) {
+app.get('/state', auth, function(req, res) {
     res.send(JSON.stringify(relaisStates));
 });
-app.get('/state/:id', function(req, res) {
+app.get('/state/:id', auth, function(req, res) {
     var id = parseInt(req.params.id)-1;
     res.type('text/plain');
     if (id >= 0 && id < 6) {
@@ -227,7 +233,7 @@ app.get('/state/:id', function(req, res) {
       res.statusCode = 404;
     }
 });
-app.put('/state/:id', function(req, res) {
+app.put('/state/:id', auth, function(req, res) {
     var id = parseInt(req.params.id)-1;
     var request = req.body;
     var state = parseInt(request.value);
