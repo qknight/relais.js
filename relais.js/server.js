@@ -92,13 +92,31 @@ child2.stdout.on('data', function (data) {
         var obj = JSON.parse(line);
         var key = parseInt(obj.data); 
         if (!isNaN(key)) {
-          if (key >= 0 || key < 6)
           //console.log("success: parsing JSON: " + key + "\n");
           var date = new Date();
           var delta = date.getTime() - relaisInputTimes[key];
           // debounce each key pad key with ~ 200-800 ms
           if (delta > 200) {
-            toggle(key);
+            switch(key) {
+              case 0:
+                toggle(0);
+                break;
+              case 3:
+                toggle(1);
+                break;
+              case 6:
+                toggle(4);
+                break;
+              case 9:
+                toggle(5);
+                break;
+              case 1:
+                toggle(2);
+                break;
+              case 4:
+                toggle(3);
+                break;
+            }
           }
           relaisInputTimes[key] = date;
         }
@@ -157,8 +175,9 @@ function changeState(relais, state) {
  
 // websocket server eventlisteners and callbacks
 wss.on('connection', function (connection) {
-    var messagestring = 'wss.on.connection - new client connected';
+    var messagestring = 'wss.on.connection - new client ' + connection.upgradeReq.connection.remoteAddress;
     console.log(messagestring.yellow);
+
     var cid = connection.upgradeReq.headers['sec-websocket-key'];
     this.clientConnections[cid] = setConnectionListeners(connection);
     connection.id = cid;
