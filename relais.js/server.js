@@ -76,7 +76,7 @@ function toggle(key) {
 // tinkerforge multi touch bricklet - keypad 3x4
 // the keypad-tool is a part of this project - relais.js
 var spawn2 = require('child_process').spawn;
-var child2 = spawn2('/bin/keypad-tool');
+var child2 = spawn2('/bin/button-tool');
 child2.stdout.on('data', function (data) {
   // if one clicks several buttons on the 3x4 keypad at once
   // keypad-tool writes to stdout so fast, that sometimes node.js gets
@@ -97,26 +97,27 @@ child2.stdout.on('data', function (data) {
           var delta = date.getTime() - relaisInputTimes[key];
           // debounce each key pad key with ~ 200-800 ms
           if (delta > 200) {
-            switch(key) {
-              case 0:
-                toggle(0);
-                break;
-              case 3:
-                toggle(1);
-                break;
-              case 6:
-                toggle(4);
-                break;
-              case 9:
-                toggle(5);
-                break;
-              case 1:
-                toggle(2);
-                break;
-              case 4:
-                toggle(3);
-                break;
-            }
+            toggle(key);
+            //switch(key) {
+            //  case 0:
+            //    toggle(0);
+            //    break;
+            //  case 1:
+            //    toggle(1);
+            //    break;
+            //  case 6:
+            //    toggle(4);
+            //    break;
+            //  case 9:
+            //    toggle(5);
+            //    break;
+            //  case 1:
+            //    toggle(2);
+            //    break;
+            //  case 4:
+            //    toggle(3);
+            //    break;
+            //}
           }
           relaisInputTimes[key] = date;
         }
