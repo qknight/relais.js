@@ -3,8 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <title>relais.js</title>
-<link href="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADa3goAAAAAAAAAAACV/woAlf8KYWFh+2FhYfsAlf8KAJX/CgCV/woAlf8KAJX/CgCV/woAlf8KAAAAAAAAAAAA2t4KANreCgAAAAAAlf8KYWFh+2FhYfthYWH7YWFh+wCV/woAlf8KAJX/CgCV/woAlf8KAJX/CgAAAAAAAAAAAAAAAADa3goAAAAAYWFh+wCV/woAlf8KAJX/CgCV/wphYWH7AJX/CgCV/woAlf8KAJX/CgCV/woAAAAAAAAAAAAAAAAA2t4KYWFhAACV/wphYWH7YWFh+2FhYfthYWH7AJX/CgCV/woAlf8KAJX/CgCV/woAlf8KAAAAAAAAAAAAAAAAAAAAAAAAAABhYWH7AJX/CgCV/woAlf8KAJX/CmFhYfsAlf8KAJX/CgCV/woAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJX/CmFhYfthYWH7YWFh+2FhYfsAlf8KAJX/CgCV/woAAAAAAAAAAACV/woAAAAAANreCgAAAAAA2t4KAAAAAGFhYfsAlf8KAJX/CgCV/woAlf8KYWFh+wCV/woAlf8KAAAAAACV/woAlf8KAAAAAADa3goA2t4KAAAAAACE//sAhP/7YWFh+2FhYfthYWH7YWFh+wCE//sAhP/7AJX/CgCV/woAlf8KAJX/CgAAAAAAAAAAAAAAAACE//sA2f/7ANn/+wDZ//sAhP/7AIT/+wDZ//sA2f/7ANn/+wCE//sAlf8KAJX/CgAAAAAAAAAAAAAAAACE//sA2f/7AN36+wDd+vsA3fr7AIT/+wCE//sA3fr7AN36+wDd+vsA2f/7AIT/+wCV/woAAAAAAAAAAAAAAAAAhP/7ANn/+wDd+vsA9vr7APb6+wCE//sAhP/7APb6+wD2+vsA3fr7ANn/+wCE//sAlf8KAAAAAAAAAAAAAAAAAIT/+wDZ//sA3fr7APb6+wAA//sA9vr7APb6+wAA//sA9vr7AN36+wDZ//sAhP/7AJX/CgAAAAAAAAAAAAAAAACE//sA2f/7AN36+wD2+vsAAP/7AIT/+wCE//sAAP/7APb6+wDd+vsA2f/7AIT/+wCV/woAAAAAAAAAAAAAAAAAAAAAAIT/+wDZ//sA2f/7AN36+wD2+vsA9vr7AN36+wDZ//sA2f/7AIT/+wCV/woAlf8KAAAAAAAAAAAA2t4KAAAAAAAAAAAAhP/7AIT/+wDZ//sA2f/7ANn/+wDZ//sAhP/7AIT/+wCV/woAAAAAAJX/CgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhP/7AIT/+wCE//sAhP/7AJX/CgAAAAAAAAAAAAAAAAAAAAAAAAAA/n8AAPw/AAD73wAA/D8AAPvfAAD8PwAA+98AAPAPAADgBwAAwAMAAMADAADAAwAAwAMAAOAHAADwDwAA/D8AAA==" rel="icon" type="image/x-icon" />
+        <title>door.js</title>
+
+<link href="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgAAAD4AAAA+AAAAPgAAAD4AAAA+AAAAPgAAAD4AAAAAAAAAAAAAAAAAAAAA////AP///wD///8AAAAAPgAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAAPgAAAAD///8A////AP///wD///8AAAAAAAAAAP98fHz/6enp/3x8fP98fHz/fHx8/3x8fP98fHz/fHx8/wAAAP8AAAAA////AP///wD///8A////AAAAAAAAAAD/6enp/+np6f/p6en/6enp/+np6f/p6en/6enp/+np6f8AAAD/AAAAAP///wD///8A////AP///wAAAAAAAAAA/3x8fP/p6en/fHx8/3x8fP98fHz/fHx8/3x8fP98fHz/AAAA/wAAAAD///8AAAAAAP///wD///8AAAAAAAAAAP/p6en/6enp/+np6f/p6en/6enp/+np6f/p6en/6enp/wAAAP8AAAAA////AP///wD///8A////AAAAAAAAAAD/fHx8/+np6f98fHz/fHx8/3x8fP98fHz/fHx8/3x8fP8AAAD/AAAAAP///wD///8A////AP///wAAAAAAAAAA/+np6f/p6en/6enp/+np6f/p6en/6enp/+np6f/p6en/AAAA/wAAAAD///8A////AP///wD///8AAAAAAAAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP////8A////AP///wD///8A////AAAAAAAAAAAAAAAA/+np6f8AAAD/AAAAAAAAAAAAAAD/6enp/wAAAP8AAAAA////AP///wD///8A////AP///wD///8AAAAAAAAAAP/p6en/AAAA/wAAAD4AAAA+AAAA/+np6f8AAAD/AAAAAP///wD///8A////AP///wAAAAAA////AAAAAAAAAAD/6enp/3x8fP8AAAD/AAAA/3x8fP/p6en/AAAA/wAAAAD///8A////AP///wD///8AAAAAAP///wAAAAAAAAAA/3x8fP/p6en/6enp/+np6f/p6en/fHx8/wAAAP////8A////AP///wD///8A////AAAAAAD///8A////AAAAAAAAAAD/fHx8/+np6f/p6en/fHx8/wAAAP8AAAAA////AP///wD///8A////AP///wAAAAAA////AP///wD///8AAAAAAAAAAP8AAAD/AAAA/wAAAP8AAAAA////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wAAAAAAAAAAAAAAAAAAAAAA////AP///wD///8A////AP///wD///8A//8AAPAPAADgBwAA4AcAAOAHAADgBwAA4AcAAOAHAADgBwAA8Y8AAPGPAADwDwAA8A8AAPgfAAD8PwAA//8AAA==" rel="icon" type="image/x-icon" />
+
 <style type="text/css">
 #warning{
    position:absolute;
@@ -23,13 +25,6 @@
     <body>
 <div id="main">
     <img id='foo0' state="0" width=100x value="0" src="ktip_off.png" onclick="myFunction('foo0')">1 
-    <img id='foo1' state="0" width=100x value="1" src="ktip_off.png" onclick="myFunction('foo1')">2 <br>
-    <img id='foo2' state="0" width=100x value="2" src="ktip_off.png" onclick="myFunction('foo2')">3
-    <img id='foo3' state="0" width=100x value="3" src="ktip_off.png" onclick="myFunction('foo3')">4 <br>
-    <img id='foo4' state="0" width=100x value="4" src="ktip_off.png" onclick="myFunction('foo4')">5 
-    <img id='foo5' state="0" width=100x value="5" src="ktip_off.png" onclick="myFunction('foo5')">6 <br>
-    <img id='foo6' state="0" width=100x value="6" src="ktip_off.png" onclick="myFunction('foo6')">7 
-    <img id='foo7' state="0" width=100x value="7" src="ktip_off.png" onclick="myFunction('foo7')">8 <br>
     <div id="status1">WebSocket: disconnected</div>
     <div id="messages">
     <div id="warning" onClick="webSocketConnection.init();">
@@ -44,13 +39,6 @@ click this field to reconnect</b><br> (reload browser or press key 1..8)
 <script>
 $(document).ready(function(){
     $(document).bind('keydown', '1', function(event){ myFunction('foo0') });
-    $(document).bind('keydown', '2', function(event){ myFunction('foo1') });
-    $(document).bind('keydown', '3', function(event){ myFunction('foo2') });
-    $(document).bind('keydown', '4', function(event){ myFunction('foo3') });
-    $(document).bind('keydown', '5', function(event){ myFunction('foo4') });
-    $(document).bind('keydown', '6', function(event){ myFunction('foo5') });
-    $(document).bind('keydown', '7', function(event){ myFunction('foo6') });
-    $(document).bind('keydown', '8', function(event){ myFunction('foo7') });
 });
 </script>
 
@@ -68,10 +56,10 @@ function myFunction(arg) {
 
     var f = document.getElementById(arg);
     f.src = "Wait.gif"
-    if (f.getAttribute('state') == 0)
-      webSocketConnection.send(f.getAttribute('value'), '1');
-    if (f.getAttribute('state') == 1)
-      webSocketConnection.send(f.getAttribute('value'), '0');
+    //if (f.getAttribute('state') == 0)
+    webSocketConnection.send(f.getAttribute('value'), '1');
+    //if (f.getAttribute('state') == 1)
+    //  webSocketConnection.send(f.getAttribute('value'), '0');
  };
 
 var webSocketConnection = {

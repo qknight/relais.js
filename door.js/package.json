@@ -1,0 +1,23 @@
+{
+  "name": "relais.js",
+  "version": "0.0.1",
+  "description": "control a bunch of relais for 230V control using html5, websockets and a tinkerforge keypad",
+  "main": "relais",
+  "dependencies": {
+    "websocket": "~1.0.8",
+    "express": "~3.4.4",
+    "colors": "~0.6.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qknight/relais.js"
+  },
+  "keywords": [
+    "raspi",
+    "relais",
+    "tinkerforge"
+  ],
+  "author": "Joachim Schiele",
+  "license": "AGPL",
+  "readmeFilename": "README"
+}

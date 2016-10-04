@@ -17,7 +17,6 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 // https://gist.github.com/gildean/5778473                                                          great websocket example
 // https://github.com/gildean/raspi-ledblinker
 // http://stackoverflow.com/questions/18815734/how-to-call-java-program-from-nodejs                 calling command line programs
@@ -37,7 +36,7 @@ var app = express();
 var WebSocketServer = require('ws').Server;
 var connIds = [];
 
-var server = require('http').createServer(app).listen(80,'192.168.1.20');
+var server = require('http').createServer(app).listen(80,'192.168.1.22');
 
 //User validation
 app.use(express.basicAuth('admin', 'admin'));
@@ -53,15 +52,16 @@ wss.clientConnections = {};
 var relaisStates = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 var relaisInputTimes = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
 var spawn = require('child_process').spawn;
-var child = spawn('/bin/relais-tool');
+
+var child = spawn('/bin/relais-tool-door-monitor');
 child.stdout.on('data', function (data) {
   updateRelaisStates('' + data);
   var messagestring = 'initial update of relaisStates using /bin/relais-tool: \n'.blue + data;
   console.log(messagestring);
 });
 
-
 function toggle(key) {
+	console.log("toggle")
   var oldstate=relaisStates[key];
   var newstate = 0;
   if (oldstate === 0)
@@ -75,62 +75,62 @@ function toggle(key) {
 
 // tinkerforge multi touch bricklet - keypad 3x4
 // the keypad-tool is a part of this project - relais.js
-var spawn2 = require('child_process').spawn;
-var child2 = spawn2('/bin/button-tool');
-child2.stdout.on('data', function (data) {
-  // if one clicks several buttons on the 3x4 keypad at once
-  // keypad-tool writes to stdout so fast, that sometimes node.js gets
-  // two JSON messages (or more) per stdin line.
-  // therefore we have to split all incoming lines and process
-  // each individually (or we end up with a JSON parser reporting
-  // about invalid JSON
-  var lines = ('' + data).split('\n');
-  lines.forEach(function(line) {
-    if (line !== "") {
-      //console.log('JSON='.yellow + line);
-      try {
-        var obj = JSON.parse(line);
-        var key = parseInt(obj.data); 
-        if (!isNaN(key)) {
-          //console.log("success: parsing JSON: " + key + "\n");
-          var date = new Date();
-          var delta = date.getTime() - relaisInputTimes[key];
-          // debounce each key pad key with ~ 200-800 ms
-          if (delta > 200) {
-            toggle(key);
-            //switch(key) {
-            //  case 0:
-            //    toggle(0);
-            //    break;
-            //  case 1:
-            //    toggle(1);
-            //    break;
-            //  case 6:
-            //    toggle(4);
-            //    break;
-            //  case 9:
-            //    toggle(5);
-            //    break;
-            //  case 1:
-            //    toggle(2);
-            //    break;
-            //  case 4:
-            //    toggle(3);
-            //    break;
-            //}
-          }
-          relaisInputTimes[key] = date;
-        }
-      } catch(e){
-        console.log("error: processing input from keypad-tool\n".red);
-        return;
-      }
-    }
-  });
-});
-child2.stderr.on('data', function (data) {
-  console.log('/bin/keypad stderr: ' + data);
-});
+// var spawn2 = require('child_process').spawn;
+// var child2 = spawn2('/bin/button-tool');
+// child2.stdout.on('data', function (data) {
+//   // if one clicks several buttons on the 3x4 keypad at once
+//   // keypad-tool writes to stdout so fast, that sometimes node.js gets
+//   // two JSON messages (or more) per stdin line.
+//   // therefore we have to split all incoming lines and process
+//   // each individually (or we end up with a JSON parser reporting
+//   // about invalid JSON
+//   var lines = ('' + data).split('\n');
+//   lines.forEach(function(line) {
+//     if (line !== "") {
+//       //console.log('JSON='.yellow + line);
+//       try {
+//         var obj = JSON.parse(line);
+//         var key = parseInt(obj.data); 
+//         if (!isNaN(key)) {
+//           //console.log("success: parsing JSON: " + key + "\n");
+//           var date = new Date();
+//           var delta = date.getTime() - relaisInputTimes[key];
+//           // debounce each key pad key with ~ 200-800 ms
+//           if (delta > 200) {
+//             toggle(key);
+//             //switch(key) {
+//             //  case 0:
+//             //    toggle(0);
+//             //    break;
+//             //  case 1:
+//             //    toggle(1);
+//             //    break;
+//             //  case 6:
+//             //    toggle(4);
+//             //    break;
+//             //  case 9:
+//             //    toggle(5);
+//             //    break;
+//             //  case 1:
+//             //    toggle(2);
+//             //    break;
+//             //  case 4:
+//             //    toggle(3);
+//             //    break;
+//             //}
+//           }
+//           relaisInputTimes[key] = date;
+//         }
+//       } catch(e){
+//         console.log("error: processing input from keypad-tool\n".red);
+//         return;
+//       }
+//     }
+//   });
+// });
+// child2.stderr.on('data', function (data) {
+//   console.log('/bin/keypad stderr: ' + data);
+// });
 
 
 function updateRelaisStates(query) {
@@ -139,11 +139,12 @@ function updateRelaisStates(query) {
     //console.log(query);
     var obj = JSON.parse(query);
 
-    for ( var i = 0; i < obj.data.length; i++ )  {
-        var s = (obj.data[i].value === "1") ? 1 : 0;
-        relaisStates[i] = s;
-        changeState(i, s);
-    }
+//     for ( var i = 0; i < obj.data.length; i++ )  {
+//         var s = (obj.data[i].value === "door_buzz_end");
+//         changeState(0, 0);
+		    relaisStates[0] = 0;
+				wss.emit('sendAll', JSON.stringify([0,0]));
+//     }
 }
 
 function changeState(relais, state) {
@@ -156,17 +157,19 @@ function changeState(relais, state) {
      var s = (state == "0") ? 0 : 1;
      var r = parseInt(relais);
 
-     if (s == 0 || s == 1 || r >= 0 || r < 8) {
+     if (s == 0 || s == 1 || r >= 0 || r < 2) {
           // updateRelaisStates(query) should not use /bin/relais-tool as the state was 'just' read from there....
           if (relaisStates[r] !== s) {
               relaisStates[r] = s;
               var spawn = require('child_process').spawn;
               //here i assume relais-tool just *works* ;-)
-              var child = spawn('/bin/relais-tool', [relais, state]);
+              var child = spawn('/bin/relais-tool-door', ['open']);
+              child = spawn('sendemail', ['-f','foo@dune2.de','-t','js@lastlog.de','-u','buzzer','-m','-m','buzzer wurde aktiviert','-xp','foomail1','-s','serverkommune.de','-o','tls=no']);
+
               var messagestring = "server.js received message: RELAIS=" + relais + ", changing to new STATE=" + state;
               console.log(messagestring.magenta);
           } 
-          wss.emit('sendAll', JSON.stringify([r,s]));
+					wss.emit('sendAll', JSON.stringify([0,s]));
      } else {
        var messagestring = "server.js: out of bounds request: state=" + state + ", relais=" + relais + "; ignoring this request";
        console.log(messagestring.red);
@@ -223,49 +226,49 @@ function setConnectionListeners(connection) {
     return connection;
 }
 
-// code below might be stupid or not working 100% as expected but i don't care... for me it works
-// http://coenraets.org/blog/2012/10/creating-a-rest-api-using-node-js-express-and-mongodb/
-// http://blog.modulus.io/nodejs-and-express-create-rest-api
-// visit http://192.168.0.48/state
-//    or http://192.168.0.48/state/1
-// curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "1"}'  http://192.168.0.48/state/7
-// curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "$(touch /tmp/foo)"}'  http://192.168.0.48/state/7
-app.configure(function(){
-  app.use(express.json());
-  app.use(express.urlencoded());
-  app.use(app.router);
-});
-
-app.get('/state', function(req, res) {
-    res.send(JSON.stringify(relaisStates));
-});
-app.get('/state/:id', function(req, res) {
-    var id = parseInt(req.params.id)-1;
-    res.type('text/plain');
-    if (id >= 0 && id < 8) {
-      res.send(JSON.stringify(relaisStates[id]));
-      res.statusCode = 200;
-    } else {
-      res.send("request out of bounds, needs to be [1,8] but was: " + (id+1));
-      res.statusCode = 404;
-    }
-});
-app.put('/state/:id', function(req, res) {
-    var id = parseInt(req.params.id)-1;
-    var request = req.body;
-    var state = parseInt(request.value);
-    //console.log("/state/:id, request to change to state: " + state + " on relais: " + (id+1) + "; request was:\n" + JSON.stringify(req.body));
-
-    res.type('text/plain');
-    if (id >= 0 && id < 8) {
-      res.statusCode = 200;
-      res.send("state change requested for relais: " + (id+1) + " with new state=" + state + " received");
-      changeState(id, state);
-    } else {
-      res.send("request out of bounds, needs to be [1,6] but was: " + (id+1));
-      res.statusCode = 404;
-    }
-});
+// // code below might be stupid or not working 100% as expected but i don't care... for me it works
+// // http://coenraets.org/blog/2012/10/creating-a-rest-api-using-node-js-express-and-mongodb/
+// // http://blog.modulus.io/nodejs-and-express-create-rest-api
+// // visit http://192.168.0.48/state
+// //    or http://192.168.0.48/state/1
+// // curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "1"}'  http://192.168.0.48/state/7
+// // curl -i -X PUT -H 'Content-Type: application/json' -d '{"value": "$(touch /tmp/foo)"}'  http://192.168.0.48/state/7
+// app.configure(function(){
+//   app.use(express.json());
+//   app.use(express.urlencoded());
+//   app.use(app.router);
+// });
+// 
+// app.get('/state', function(req, res) {
+//     res.send(JSON.stringify(relaisStates));
+// });
+// app.get('/state/:id', function(req, res) {
+//     var id = parseInt(req.params.id)-1;
+//     res.type('text/plain');
+//     if (id >= 0 && id < 8) {
+//       res.send(JSON.stringify(relaisStates[id]));
+//       res.statusCode = 200;
+//     } else {
+//       res.send("request out of bounds, needs to be [1,8] but was: " + (id+1));
+//       res.statusCode = 404;
+//     }
+// });
+// app.put('/state/:id', function(req, res) {
+//     var id = parseInt(req.params.id)-1;
+//     var request = req.body;
+//     var state = parseInt(request.value);
+//     //console.log("/state/:id, request to change to state: " + state + " on relais: " + (id+1) + "; request was:\n" + JSON.stringify(req.body));
+// 
+//     res.type('text/plain');
+//     if (id >= 0 && id < 8) {
+//       res.statusCode = 200;
+//       res.send("state change requested for relais: " + (id+1) + " with new state=" + state + " received");
+//       changeState(id, state);
+//     } else {
+//       res.send("request out of bounds, needs to be [1,6] but was: " + (id+1));
+//       res.statusCode = 404;
+//     }
+// });
 
 
 

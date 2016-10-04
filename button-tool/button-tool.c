@@ -1,5 +1,5 @@
 /*
- *   keypad-tool gets the status of a tinkerforge multi touch bricklet
+ *   button-tool gets the status of a tinkerforge IO-16 bricklet
  *
  *   Copyright (C) 2014 Joachim Schiele
  *
