@@ -29,6 +29,10 @@
 #include <string.h>     /* strcat */
 #include <stdlib.h>     /* strtol */
 
+
+// Create IP connection
+IPConnection ipcon;
+
 const char *byte_to_binary(int x)
 {
     static char b[9];
@@ -84,22 +88,34 @@ void cb_interrupt(char port, uint8_t interrupt_mask, uint8_t value_mask, void *u
     fflush(stdout);
 }
 
-int main() {
-    // Create IP connection
-    IPConnection ipcon;
-    ipcon_create(&ipcon);
+// Authenticate each time the connection got (re-)established
+void cb_connected(uint8_t connect_reason, void *user_data) {
+    IPConnection *ipcon = (IPConnection *)user_data;
 
+    switch(connect_reason) {
+    case IPCON_CONNECT_REASON_REQUEST:        printf("Connected by request\n"); break;
+    case IPCON_CONNECT_REASON_AUTO_RECONNECT: printf("Auto-Reconnected\n"); break;
+    }
+
+    fprintf(stdout, "cb_connected called\n");
+    // Authenticate first...
+    //if (ipcon_authenticate(ipcon, SECRET) < 0) {
+    //    fprintf(stderr, "Could not authenticate\n");
+    //    return;
+    //} else {
+    //    printf("Authentication succeeded\n");
+    //}
+
+    // ...then trigger enumerate
+    //ipcon_enumerate(ipcon);
+}
+
+void reconnect_io16() {
     // Create device object
     IO16 io;
     io16_create(&io, UID, &ipcon); 
 
-    // Connect to brickd
-    if(ipcon_connect(&ipcon, HOST, PORT) < 0) {
-        fprintf(stderr, "Could not connect\n");
-        exit(1);
-    }
-    // Don't use device before ipcon is connected
-
+    //printf("UID: %s, Enumeration Type: %d\n", uid, enumeration_type);
     // Register callback for interrupts
     io16_register_callback(&io,
                            IO16_CALLBACK_INTERRUPT,
@@ -108,6 +124,43 @@ int main() {
 
     // Enable interrupt on pin 2 of port a
     io16_set_port_interrupt(&io, 'a', 255);
+}
+
+
+
+// Print incoming enumeration information
+void cb_enumerate(const char *uid, const char *connected_uid,
+                  char position, uint8_t hardware_version[3],
+                  uint8_t firmware_version[3], uint16_t device_identifier,
+                  uint8_t enumeration_type, void *user_data) {
+    // avoid unused parameter warnings
+    (void)user_data; (void)connected_uid; (void)position;
+    (void)hardware_version; (void)firmware_version; (void)device_identifier;
+    reconnect_io16();
+}
+
+int main() {
+    ipcon_create(&ipcon);
+
+    // Connect to brickd
+    if(ipcon_connect(&ipcon, HOST, PORT) < 0) {
+        fprintf(stderr, "Could not connect\n");
+        exit(1);
+    }
+    // Don't use device before ipcon is connected
+
+    // Register connected callback to "cb_connected"
+    ipcon_register_callback(&ipcon,
+                            IPCON_CALLBACK_CONNECTED,
+                            (void *)cb_connected,
+                            &ipcon);
+  // Register enumeration callback to "cb_enumerate"
+    ipcon_register_callback(&ipcon,
+                            IPCON_CALLBACK_ENUMERATE,
+                            (void *)cb_enumerate,
+                            NULL);
+
+reconnect_io16();
 
     fprintf(stderr, "Press key to exit\n");
     getchar();
