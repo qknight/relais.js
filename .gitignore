@@ -2,3 +2,8 @@ relais-tool/relais-tool
 keypad-tool/keypad-tool
 node_modules
 *.swp
+button-tool/button-tool
+door.js/relais-tool-door/relais-tool-door
+door.js/relais-tool-door/relais-tool-door-monitor
+enumerate/example_enumerate
+touchpad-tool/keypad-tool
